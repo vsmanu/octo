@@ -1,0 +1,75 @@
+# config/config.example.yml
+
+# Global settings
+global:
+  check_interval: 60s
+  request_timeout: 10s
+
+# Endpoints to monitor
+endpoints:
+  - id: google-search
+    name: "Google Search"
+    url: "https://www.google.com"
+    method: GET
+    interval: 30s
+    timeout: 5s
+    validation:
+      status_codes: [200]
+    tags:
+      env: prod
+
+  - id: example-api
+    name: "Example API"
+    url: "https://api.example.com/health"
+    method: GET
+    headers:
+      Authorization: "Bearer token"
+    validation:
+      status_codes: [200, 201]
+      content_match:
+        type: regex
+        pattern: '"status":"ok"'
+    tags:
+      env: prod
+      team: backend
+
+# Alert Channels Configuration
+# You can configure multiple channels (Slack, Discord, Teams, Generic Webhook)
+alert_channels:
+  - name: "Slack Team"
+    type: "webhook"
+    url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+    headers:
+      Content-Type: "application/json"
+    body: |
+      {
+        "text": ":rotating_light: *Alert Triggered: {{ .Rule.Name }}*\nEndpoint: {{ .Endpoint.Name }} ({{ .Endpoint.URL }})\nValue: {{ .Result.Duration }}"
+      }
+
+  - name: "Discord Channel"
+    type: "webhook"
+    url: "https://discord.com/api/webhooks/YOUR/DISCORD/WEBHOOK"
+    headers:
+      Content-Type: "application/json"
+    body: |
+      {
+        "content": "**Alert Triggered: {{ .Rule.Name }}**\nEndpoint: {{ .Endpoint.Name }}\nError: {{ .Result.Error }}"
+      }
+
+# Alert Rules Configuration
+alert_rules:
+  # Rule 1: Alert when check fails (health check down)
+  - name: "Endpoint Down"
+    condition: "success == false"
+    severity: "critical"
+    # Target specific endpoints using tags
+    tags:
+      env: "prod"
+    # Send to these channels
+    channels:
+      - "Slack Team"
+      - "Discord Channel"
+
+
+
+satellites: [] # Empty for MVP (running in master mode)

@@ -1,0 +1,51 @@
+# Binaries
+master
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Logs
+*.log
+output.log
+
+# OS Specific
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node.js / Web
+web/node_modules/
+web/dist/
+web/coverage/
+web/.env
+web/.env.local
+web/.env.development.local
+web/.env.test.local
+web/.env.production.local
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
+
+# Config
+# Ignore actual config, keep example
+config/config.yml
+!config/config.example.yml
+
+# Storage / Data (if running with local volume mounts)
+postgres-data/
+influxdb-data/
+config/postgres-data/
+config/influxdb-data/
