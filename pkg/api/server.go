@@ -34,6 +34,9 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /metrics", s.handleMetrics) // Placeholder for Prometheus
 	mux.HandleFunc("GET /api/v1/config", s.handleGetConfig)
 	mux.HandleFunc("POST /api/v1/config", s.handleUpdateConfig)
+	mux.HandleFunc("POST /api/v1/config/endpoints", s.handleCreateEndpoint)
+	mux.HandleFunc("PUT /api/v1/config/endpoints/{id}", s.handleUpdateEndpoint)
+	mux.HandleFunc("DELETE /api/v1/config/endpoints/{id}", s.handleDeleteEndpoint)
 	mux.HandleFunc("GET /api/v1/endpoints/{id}/history", s.handleGetEndpointHistory)
 
 	// Frontend (SPA)

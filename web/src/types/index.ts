@@ -4,6 +4,19 @@ export interface Endpoint {
     url: string;
     method: string;
     interval: number;
+    timeout: number;
+    headers: Record<string, string>;
+    validation: {
+        status_codes: number[];
+        content_match?: {
+            type: string;
+            pattern: string;
+        };
+    };
+    ssl: {
+        expiration_alert_days: number[];
+    };
+    tags: Record<string, string>;
 }
 
 export interface GlobalConfig {
@@ -22,6 +35,7 @@ export interface Metric {
     duration_ns: number;
     status_code: number;
     success: boolean;
+    error?: string;
     cert_expiry?: string;
     cert_issuer?: string;
     cert_subject?: string;

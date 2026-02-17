@@ -9,6 +9,6 @@ import (
 
 type Provider interface {
 	WriteResult(result checker.Result) error
-	QueryHistory(ctx context.Context, endpointID string, duration time.Duration) ([]Metric, error)
+	QueryHistory(ctx context.Context, endpointID string, from, to time.Time) ([]Metric, error)
 	Close()
 }

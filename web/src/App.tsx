@@ -4,6 +4,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Endpoints } from "./pages/Endpoints";
 import { EndpointDetails } from "./pages/EndpointDetails";
 import { Config } from "./pages/Config";
+import { EndpointForm } from "./pages/EndpointForm";
 
 function App() {
   return (
@@ -12,7 +13,9 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="endpoints" element={<Endpoints />} />
+          <Route path="endpoints/new" element={<EndpointForm />} />
           <Route path="endpoints/:id" element={<EndpointDetails />} />
+          <Route path="endpoints/:id/edit" element={<EndpointForm />} />
           <Route path="config" element={<Config />} />
           <Route path="settings" element={<div>Settings Page (Coming Soon)</div>} />
         </Route>

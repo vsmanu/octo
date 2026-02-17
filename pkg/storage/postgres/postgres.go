@@ -124,22 +124,24 @@ func (s *PostgresStorage) WriteResult(result checker.Result) error {
 	return err
 }
 
-func (s *PostgresStorage) QueryHistory(ctx context.Context, endpointID string, duration time.Duration) ([]storage.Metric, error) {
+func (s *PostgresStorage) QueryHistory(ctx context.Context, endpointID string, from, to time.Time) ([]storage.Metric, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT
 			time,
 			duration_ns,
 			status_code,
 			success,
+			error,
 			cert_expiry,
 			cert_issuer,
 			cert_subject
 		FROM http_checks
 		WHERE
 			endpoint_id = $1
-			AND time >= now() - $2::interval
+			AND time >= $2
+			AND time <= $3
 		ORDER BY time ASC
-	`, endpointID, duration)
+	`, endpointID, from, to)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +151,7 @@ func (s *PostgresStorage) QueryHistory(ctx context.Context, endpointID string, d
 	for rows.Next() {
 		var m storage.Metric
 		err := rows.Scan(
-			&m.Timestamp, &m.DurationNS, &m.StatusCode, &m.Success,
+			&m.Timestamp, &m.DurationNS, &m.StatusCode, &m.Success, &m.Error,
 			&m.CertExpiry, &m.CertIssuer, &m.CertSubject,
 		)
 		if err != nil {

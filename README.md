@@ -4,7 +4,7 @@
 ![Octo Banner](assets/banner.png)
 
 [![Go Version](https://img.shields.io/badge/go-1.22+-blue.svg)](https://golang.org)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-AGPLv3-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](Dockerfile)
 [![Status](https://img.shields.io/badge/status-active-success.svg)](#)
 
@@ -14,12 +14,34 @@ Octo is a modern, high-performance monitoring solution designed for developers a
 
 ## 🚀 Key Features
 
-*   **⚡ High-Performance Monitoring**: execute thousands of concurrent checks with minimal resource footprint.
+*   **⚡ High-Performance Monitoring**: Execute thousands of concurrent checks with minimal resource footprint.
 *   **📊 Real-Time Dashboard**: Visualize uptime, latency, and health status instantly via a modern React UI.
+*   **🔒 SSL/TLS Monitoring**: Automatically track certificate expiration and get alerted before they expire.
 *   **💾 Long-Term Storage**: Leverage **TimescaleDB** for powerful time-series queries and historical data retention.
-*   **🛠️ Hot-Reload Configuration**: Update your monitoring targets on the fly via API or UI—no restarts required.
+*   **⚙️ UI-Based Configuration**: manage your endpoints directly from the browser with a full-featured editor.
+*   **🚨 Alerting System**: Flexible alerting via Webhooks (Slack, Discord, PagerDuty) with tag-based routing.
+*   **🛠️ Hot-Reload**: Update your monitoring targets on the fly via API or UI—no restarts required.
 *   **🐳 Container Native**: Deploy effortlessly with Docker or Podman.
-*   **🔍 Detailed Metrics**: Track everything—DNS resolution, TCP connection, TLS handshake, and TTFB.
+
+---
+
+## 📸 Screenshots
+
+### Operational Dashboard
+Get a bird's-eye view of all your services with real-time status indicators.
+![Dashboard](assets/dashboard.png)
+
+### Deep Dive Analytics & SSL Info
+Analyze historical performance trends, view SSL certificate details, and spot anomalies with synchronized charts.
+![Details](/home/manu/.gemini/antigravity/brain/474e469c-9b7c-4452-bdbf-4167263b6816/endpoint_details_verification_1771347979164.png)
+
+### Endpoint Management
+Effortlessly add, edit, and remove endpoints using the built-in configuration editor.
+![Configuration](/home/manu/.gemini/antigravity/brain/474e469c-9b7c-4452-bdbf-4167263b6816/endpoints_list_gear_icons_final_1771349462941.png)
+
+### Powerful Editor
+Configure advanced settings like Request Headers, Validation Rules, and SSL Alerts with ease.
+![Editor](/home/manu/.gemini/antigravity/brain/474e469c-9b7c-4452-bdbf-4167263b6816/filled_endpoint_form_bottom_1771349992199.png)
 
 ---
 
@@ -46,36 +68,12 @@ graph TD
 
 ---
 
-## 📸 Screenshots
-
-### Operational Dashboard
-Get a bird's-eye view of all your services with real-time status indicators.
-![Dashboard](assets/dashboard.png)
-
-### Deep Dive Analytics
-Analyze historical performance trends to identify latency spikes and outages.
-![Details](assets/details_page.png)
-
-### Seamless Configuration
-Manage your endpoints directly from the browser with the built-in JSON editor.
-![Configuration](assets/config_page.png)
-
-### Seamless Configuration
-Manage your endpoints directly from the browser with the built-in JSON editor.
-![Configuration](assets/config_page.png)
-
----
-
 ## ⚙️ Configuration
 Octo uses a YAML configuration file located at `config/config.yml`.
 
 ### Volume Mounting
 When running with Docker or Podman, the local `config/` directory is mounted into the container at `/config`.
 This means you can edit `config/config.yml` on your host machine, and the changes will be reflected in the container (requires restart for some changes, though hot-reload is supported for endpoints).
-
-**Verified Mounting:**
-- **run_podman.sh**: Mounts `$(pwd)/config:/config:Z`
-- **docker-compose.yml**: Mounts `./config:/config`
 
 **Note:** The `config.yml` file is NOT baked into the image. It is injected at runtime via the volume mount.
 
@@ -85,7 +83,7 @@ This means you can edit `config/config.yml` on your host machine, and the change
 | :--- | :--- | :--- |
 | **v0.1.0** | ✅ **Released** | MVP Core Engine, InfluxDB Support, Basic API |
 | **v0.2.0** | ✅ **Released** | React Frontend, TimescaleDB Migration, Config UI, Historical Charts |
-| **v0.3.0** | 🚧 **In Progress** | Alerting Engine (Slack/Email/PagerDuty), SLA Reporting |
+| **v0.3.0** | ✅ **Released** | Alerting Engine, SSL Monitoring, Config Editor, Aggregation Metrics |
 | **v0.4.0** | 📅 **Planned** | User Authentication (OAuth2/OIDC), Multi-user Support |
 | **v1.0.0** | 📅 **Future** | High Availability Clustering, Plugin System, Public Release |
 
@@ -136,7 +134,7 @@ Octo exposes a RESTful API for automation and integration.
 
 *   `GET /health` - System health check
 *   `GET /api/v1/config` - Retrieve current configuration
-*   `POST /api/v1/config` - Update configuration (JSON)
+*   `POST /api/v1/config/endpoints` - Create new endpoint
 *   `GET /api/v1/endpoints` - List all endpoints
 *   `GET /api/v1/endpoints/{id}/history` - Retrieve historical metrics
 
