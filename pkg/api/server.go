@@ -30,14 +30,22 @@ func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 
 	// API Routes
+	// Public API Routes
 	mux.HandleFunc("GET /health", s.handleHealth)
-	mux.HandleFunc("GET /metrics", s.handleMetrics) // Placeholder for Prometheus
-	mux.HandleFunc("GET /api/v1/config", s.handleGetConfig)
-	mux.HandleFunc("POST /api/v1/config", s.handleUpdateConfig)
-	mux.HandleFunc("POST /api/v1/config/endpoints", s.handleCreateEndpoint)
-	mux.HandleFunc("PUT /api/v1/config/endpoints/{id}", s.handleUpdateEndpoint)
-	mux.HandleFunc("DELETE /api/v1/config/endpoints/{id}", s.handleDeleteEndpoint)
-	mux.HandleFunc("GET /api/v1/endpoints/{id}/history", s.handleGetEndpointHistory)
+	mux.HandleFunc("GET /metrics", s.handleMetrics)
+	mux.HandleFunc("POST /api/v1/login", s.handleLogin)
+	mux.HandleFunc("POST /api/v1/logout", s.handleLogout)
+
+	// Protected API Routes
+	protectedMux := http.NewServeMux()
+	protectedMux.HandleFunc("GET /api/v1/auth/me", s.handleMe)
+	protectedMux.HandleFunc("GET /api/v1/config", s.handleGetConfig)
+	protectedMux.HandleFunc("POST /api/v1/config", s.handleUpdateConfig)
+	protectedMux.HandleFunc("POST /api/v1/config/endpoints", s.handleCreateEndpoint)
+	protectedMux.HandleFunc("PUT /api/v1/config/endpoints/{id}", s.handleUpdateEndpoint)
+	protectedMux.HandleFunc("DELETE /api/v1/config/endpoints/{id}", s.handleDeleteEndpoint)
+	protectedMux.HandleFunc("GET /api/v1/endpoints/{id}/history", s.handleGetEndpointHistory)
+	mux.Handle("/api/v1/", s.AuthMiddleware(protectedMux))
 
 	// Frontend (SPA)
 	if s.frontendFS != nil {

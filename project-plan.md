@@ -434,6 +434,15 @@ WS /api/v1/stream/status        - Endpoint status changes
 - Local configuration caching for offline operation
 - Independent operation during master downtime
 
+# Thoughts for later
+may be as a next part we may add satellite part
+satellites shall interact with master
+while addint a new satellite  the master shall provide a plain text secret. 
+the master may keep reference in  may be argon2 or pbkdf2, or you may find a better option. But this shall be saved into the configuration. 
+afrom token the master shall recognize the metadata about satellite. 
+from master the endpoints shall have options to choose satellites. 
+
+
 ### Deployment Options
 
 **Docker Container:**

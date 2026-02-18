@@ -40,3 +40,8 @@ export interface Metric {
     cert_issuer?: string;
     cert_subject?: string;
 }
+
+export interface User {
+    username: string;
+    role: string;
+}

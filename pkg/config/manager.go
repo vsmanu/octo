@@ -14,6 +14,7 @@ import (
 // Config represents the top-level configuration structure
 type Config struct {
 	Global        GlobalConfig      `yaml:"global" json:"global"`
+	Auth          AuthConfig        `yaml:"auth" json:"auth"`
 	Endpoints     []EndpointConfig  `yaml:"endpoints" json:"endpoints"`
 	AlertChannels []AlertChannel    `yaml:"alert_channels" json:"alert_channels"`
 	AlertRules    []AlertRule       `yaml:"alert_rules" json:"alert_rules"`
@@ -23,6 +24,18 @@ type Config struct {
 type GlobalConfig struct {
 	CheckInterval  time.Duration `yaml:"check_interval" json:"check_interval"`
 	RequestTimeout time.Duration `yaml:"request_timeout" json:"request_timeout"`
+}
+
+type AuthConfig struct {
+	Enabled  bool        `yaml:"enabled" json:"enabled"`
+	Provider string      `yaml:"provider" json:"provider"` // "basic"
+	Basic    BasicConfig `yaml:"basic" json:"basic"`
+	Secret   string      `yaml:"secret" json:"secret"` // For signing session tokens
+}
+
+type BasicConfig struct {
+	Username string `yaml:"username" json:"username"`
+	Password string `yaml:"password" json:"password"`
 }
 
 type EndpointConfig struct {

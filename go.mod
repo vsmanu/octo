@@ -6,6 +6,7 @@ toolchain go1.24.4
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/jackc/pgx/v5 v5.8.0
 	gopkg.in/yaml.v3 v3.0.1
 )
