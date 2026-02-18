@@ -6,6 +6,7 @@ import { Endpoints } from "./pages/Endpoints";
 import { EndpointDetails } from "./pages/EndpointDetails";
 import { Config } from "./pages/Config";
 import { EndpointForm } from "./pages/EndpointForm";
+import { Profile } from "./pages/Profile";
 import { Login } from "./pages/Login";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -41,6 +42,7 @@ function App() {
             <Route path="endpoints/:id" element={<EndpointDetails />} />
             <Route path="endpoints/:id/edit" element={<EndpointForm />} />
             <Route path="config" element={<Config />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<div>Settings Page (Coming Soon)</div>} />
           </Route>
         </Routes>
