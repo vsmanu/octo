@@ -9,20 +9,23 @@ import (
 	"time"
 
 	"github.com/manu/octo/pkg/config"
+	"github.com/manu/octo/pkg/satellite"
 	"github.com/manu/octo/pkg/storage"
 )
 
 type Server struct {
-	configManager *config.Manager
-	storage       storage.Provider
-	frontendFS    fs.FS
+	configManager    *config.Manager
+	storage          storage.Provider
+	satelliteManager *satellite.Manager
+	frontendFS       fs.FS
 }
 
-func NewServer(cfgMgr *config.Manager, store storage.Provider, frontendFS fs.FS) *Server {
+func NewServer(cfgMgr *config.Manager, store storage.Provider, satMgr *satellite.Manager, frontendFS fs.FS) *Server {
 	return &Server{
-		configManager: cfgMgr,
-		storage:       store,
-		frontendFS:    frontendFS,
+		configManager:    cfgMgr,
+		storage:          store,
+		satelliteManager: satMgr,
+		frontendFS:       frontendFS,
 	}
 }
 
@@ -35,6 +38,11 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /metrics", s.handleMetrics)
 	mux.HandleFunc("POST /api/v1/login", s.handleLogin)
 	mux.HandleFunc("POST /api/v1/logout", s.handleLogout)
+
+	// Satellite Routes (Protected by API Key/Auth in handler)
+	mux.HandleFunc("POST /api/v1/satellites/heartbeat", s.handleSatelliteHeartbeat)
+	mux.HandleFunc("GET /api/v1/satellites/config", s.handleSatelliteConfig)
+	mux.HandleFunc("POST /api/v1/satellites/results", s.handleSatelliteResults)
 
 	// Protected API Routes
 	protectedMux := http.NewServeMux()

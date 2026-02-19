@@ -67,7 +67,7 @@ alert_rules: []
 
 	// 3. Initialize Server with Mock Storage
 	mockStorage := &MockStorage{}
-	server := NewServer(cfgMgr, mockStorage, nil) // frontendFS is nil for API tests
+	server := NewServer(cfgMgr, mockStorage, nil, nil) // frontendFS is nil for API tests
 
 	// 4. Test Login (Success)
 	loginPayload := map[string]string{

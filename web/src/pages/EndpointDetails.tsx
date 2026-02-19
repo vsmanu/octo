@@ -71,14 +71,21 @@ export function EndpointDetails() {
     if (!endpoint) return <div className="p-8">Endpoint not found</div>;
 
     // Process data for charts
+    // 1. Identify all unique satellites
+    const satelliteIDs = Array.from(new Set(metrics.map(m => m.satellite_id || 'master')));
+    const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00C49F', '#FFBB28'];
+
+    // 2. Prepare chart data
+    // reliable way: map each metric to a point, but we need to merge same-timestamp if any?
+    // actually, separating by timestamp is fine if we use connectNulls.
     const chartData = metrics.map((m: Metric) => ({
         timestamp: new Date(m.timestamp).toISOString(),
         time: new Date(m.timestamp).toLocaleTimeString(),
-        duration: m.duration_ns / 1_000_000, // ms
-        success: m.success ? 1 : 0, // For bar chart
+        [`duration_${m.satellite_id || 'master'}`]: m.duration_ns / 1_000_000,
+        success: m.success ? 1 : 0,
         status: m.success ? 'success' : 'failure',
         error: m.error || 'Unknown error',
-        color: m.success ? '#22c55e' : '#ef4444' // green-500 : red-500
+        satellite: m.satellite_id || 'master' // for tooltip
     }));
 
     const lastMetric = metrics.length > 0 ? metrics[metrics.length - 1] : null;
@@ -269,6 +276,7 @@ export function EndpointDetails() {
                                             return (
                                                 <div className="rounded-lg border bg-background p-2 shadow-sm text-xs">
                                                     <div className="font-bold">{data.time}</div>
+                                                    <div className="text-muted-foreground mb-1">{data.satellite}</div>
                                                     <div className={data.success ? "text-green-500" : "text-red-500"}>
                                                         {data.success ? "Success" : `Error: ${data.error}`}
                                                     </div>
@@ -280,7 +288,7 @@ export function EndpointDetails() {
                                 />
                                 <Bar dataKey="success" maxBarSize={10} minPointSize={2}>
                                     {chartData.map((entry: any, index: number) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                        <Cell key={`cell-${index}`} fill={entry.success ? '#22c55e' : '#ef4444'} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -304,16 +312,24 @@ export function EndpointDetails() {
                                     contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
                                     itemStyle={{ color: 'var(--color-foreground)' }}
                                     labelStyle={{ color: 'var(--color-foreground)' }}
-                                    formatter={(value: number | undefined) => [value ? `${value.toFixed(2)} ms` : '0 ms', 'Duration']}
+                                    formatter={(value: number | undefined, name: any) => [
+                                        value ? `${value.toFixed(2)} ms` : '0 ms',
+                                        String(name).replace('duration_', '')
+                                    ]}
                                 />
-                                <Line
-                                    type="monotone"
-                                    dataKey="duration"
-                                    stroke="var(--color-primary)"
-                                    strokeWidth={2}
-                                    dot={false}
-                                    activeDot={{ r: 4 }}
-                                />
+                                {satelliteIDs.map((satID, index) => (
+                                    <Line
+                                        key={satID}
+                                        type="monotone"
+                                        dataKey={`duration_${satID}`}
+                                        name={`duration_${satID}`} // name prop is needed for tooltip to pass name
+                                        stroke={colors[index % colors.length]}
+                                        strokeWidth={2}
+                                        dot={false}
+                                        activeDot={{ r: 4 }}
+                                        connectNulls={true}
+                                    />
+                                ))}
                             </LineChart>
                         </ResponsiveContainer>
                     </div>

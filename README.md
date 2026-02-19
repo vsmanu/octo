@@ -22,6 +22,24 @@ Octo is a modern, high-performance monitoring solution designed for developers a
 *   **🚨 Alerting System**: Flexible alerting via Webhooks (Slack, Discord, PagerDuty) with tag-based routing.
 *   **🛠️ Hot-Reload**: Update your monitoring targets on the fly via API or UI—no restarts required.
 *   **🐳 Container Native**: Deploy effortlessly with Docker or Podman.
+*   **🌍 Multi-Satellite Monitoring**: Run distributed checks from multiple geographic locations to verify global availability and latency.
+
+---
+
+## 🌍 Multi-Satellite Monitoring (New!)
+
+Octo now supports **Distributed Monitoring** via Satellites. Deploy lightweight satellite nodes in different regions (e.g., AWS us-east-1, DigitalOcean fra1) to:
+*   **Verify Global Availability**: Ensure your service is accessible from around the world.
+*   **Monitor Latency**: Track response times from different geographic edge locations.
+*   **Geo-Redundancy**: Avoid false positives caused by local network issues.
+
+### Satellite Configuration
+Easily assign endpoints to specific satellites via the configuration UI or YAML.
+![Satellite Config](/home/manu/.gemini/antigravity/brain/349300b6-f128-449e-ac40-a91e3509fed3/satellite_config.png)
+
+### Global Health View
+See the status of your endpoints from every active satellite directly on the dashboard.
+![Dashboard Details](/home/manu/.gemini/antigravity/brain/349300b6-f128-449e-ac40-a91e3509fed3/dashboard_endpoint_details.png)
 
 ---
 
@@ -59,11 +77,22 @@ graph TD
     Workers -->|"HTTP Check"| Target["External Targets"]
     Workers -->|"Store Result"| DB[("TimescaleDB")]
     API -->|"Query Metrics"| DB
+    
     subgraph Core Engine
         Config
         SCH
         Workers
     end
+
+    subgraph Satellites ["Distributed Satellites"]
+        Sat1["Satellite (US-East)"]
+        Sat2["Satellite (EU-West)"]
+    end
+
+    Sat1 -->|"Poll Config / Push Results"| API
+    Sat2 -->|"Poll Config / Push Results"| API
+    Sat1 -->|"HTTP Check"| Target
+    Sat2 -->|"HTTP Check"| Target
 ```
 
 ---

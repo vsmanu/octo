@@ -30,5 +30,17 @@ services:
     depends_on:
       - timescaledb
 
+  satellite:
+    build:
+      context: .
+      dockerfile: deployments/docker/Dockerfile.satellite
+    container_name: http-monitor-satellite
+    environment:
+      - MASTER_URL=http://master:8080
+      - API_KEY=test-secret
+      - SATELLITE_ID=us-east-1
+    depends_on:
+      - master
+
 volumes:
   timescaledb-data:

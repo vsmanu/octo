@@ -11,4 +11,5 @@ type Metric struct {
 	CertExpiry  time.Time `json:"cert_expiry,omitempty"`
 	CertIssuer  string    `json:"cert_issuer,omitempty"`
 	CertSubject string    `json:"cert_subject,omitempty"`
+	SatelliteID string    `json:"satellite_id,omitempty"`
 }

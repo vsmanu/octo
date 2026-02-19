@@ -59,9 +59,27 @@ func (s *Scheduler) restartWorkers() {
 	cfg := s.cfgManager.GetConfig()
 
 	for _, endpoint := range cfg.Endpoints {
-		s.wg.Add(1)
-		go s.runWorker(endpoint)
+		if shouldRunOnMaster(endpoint) {
+			s.wg.Add(1)
+			go s.runWorker(endpoint)
+		}
 	}
+}
+
+func shouldRunOnMaster(endpoint config.EndpointConfig) bool {
+	// Default: Run on Master if no satellites specified
+	if len(endpoint.Satellites) == 0 {
+		return true
+	}
+
+	// Check if "master" is in the list
+	for _, s := range endpoint.Satellites {
+		if s == "master" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (s *Scheduler) runWorker(endpoint config.EndpointConfig) {

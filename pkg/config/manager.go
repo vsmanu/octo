@@ -49,6 +49,7 @@ type EndpointConfig struct {
 	Validation ValidationConfig  `yaml:"validation" json:"validation"`
 	SSL        SSLConfig         `yaml:"ssl" json:"ssl"`
 	Tags       map[string]string `yaml:"tags" json:"tags"`
+	Satellites []string          `yaml:"satellites" json:"satellites"`
 }
 
 type ValidationConfig struct {
@@ -62,9 +63,17 @@ type ContentMatch struct {
 }
 
 type SatelliteConfig struct {
-	ID   string `yaml:"id" json:"id"`
-	Name string `yaml:"name" json:"name"`
-	URL  string `yaml:"url,omitempty" json:"url,omitempty"`
+	ID         string            `yaml:"id" json:"id"`
+	Name       string            `yaml:"name" json:"name"`
+	URL        string            `yaml:"url,omitempty" json:"url,omitempty"`
+	APIKeyHash string            `yaml:"api_key_hash" json:"api_key_hash"`
+	Location   SatelliteLocation `yaml:"location" json:"location"`
+}
+
+type SatelliteLocation struct {
+	Region    string  `yaml:"region" json:"region"`
+	Latitude  float64 `yaml:"latitude" json:"latitude"`
+	Longitude float64 `yaml:"longitude" json:"longitude"`
 }
 
 type SSLConfig struct {

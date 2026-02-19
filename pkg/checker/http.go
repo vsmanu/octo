@@ -15,26 +15,27 @@ import (
 
 // Result holds the metrics of a check
 type Result struct {
-	Timestamp     time.Time
-	EndpointID    string
-	URL           string
-	Method        string
-	StatusCode    int
-	Duration      time.Duration
-	DNSDuration   time.Duration
-	ConnDuration  time.Duration
-	TLSDuration   time.Duration
-	TTFB          time.Duration // Time To First Byte (processing)
-	BytesReceived int64
-	Success       bool
-	Error         string
+	Timestamp     time.Time     `json:"timestamp"`
+	EndpointID    string        `json:"endpoint_id"`
+	SatelliteID   string        `json:"satellite_id"`
+	URL           string        `json:"url"`
+	Method        string        `json:"method"`
+	StatusCode    int           `json:"status_code"`
+	Duration      time.Duration `json:"duration"`
+	DNSDuration   time.Duration `json:"dns_duration"`
+	ConnDuration  time.Duration `json:"conn_duration"`
+	TLSDuration   time.Duration `json:"tls_duration"`
+	TTFB          time.Duration `json:"ttfb"`
+	BytesReceived int64         `json:"bytes_received"`
+	Success       bool          `json:"success"`
+	Error         string        `json:"error"`
 
 	// SSL/TLS Info
-	CertExpiry    time.Time
-	CertIssuer    string
-	CertSubject   string
-	CertNotBefore time.Time
-	CertNotAfter  time.Time
+	CertExpiry    time.Time `json:"cert_expiry"`
+	CertIssuer    string    `json:"cert_issuer"`
+	CertSubject   string    `json:"cert_subject"`
+	CertNotBefore time.Time `json:"cert_not_before"`
+	CertNotAfter  time.Time `json:"cert_not_after"`
 }
 
 // Checker handles the HTTP checks

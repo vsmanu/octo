@@ -70,6 +70,7 @@ func (s *PostgresStorage) init(ctx context.Context) error {
 		"ALTER TABLE http_checks ADD COLUMN IF NOT EXISTS cert_subject TEXT",
 		"ALTER TABLE http_checks ADD COLUMN IF NOT EXISTS cert_not_before TIMESTAMPTZ",
 		"ALTER TABLE http_checks ADD COLUMN IF NOT EXISTS cert_not_after TIMESTAMPTZ",
+		"ALTER TABLE http_checks ADD COLUMN IF NOT EXISTS satellite_id TEXT",
 	}
 
 	for _, query := range migrationQueries {
@@ -99,8 +100,9 @@ func (s *PostgresStorage) WriteResult(result checker.Result) error {
 		INSERT INTO http_checks (
 			time, endpoint_id, url, method, status_code, success,
 			duration_ns, dns_ns, conn_ns, tls_ns, ttfb_ns, bytes_received, error,
-			cert_expiry, cert_issuer, cert_subject, cert_not_before, cert_not_after
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+			cert_expiry, cert_issuer, cert_subject, cert_not_before, cert_not_after,
+			satellite_id
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
 	`,
 		result.Timestamp,
 		result.EndpointID,
@@ -120,6 +122,7 @@ func (s *PostgresStorage) WriteResult(result checker.Result) error {
 		result.CertSubject,
 		result.CertNotBefore,
 		result.CertNotAfter,
+		result.SatelliteID,
 	)
 	return err
 }
@@ -134,7 +137,8 @@ func (s *PostgresStorage) QueryHistory(ctx context.Context, endpointID string, f
 			error,
 			cert_expiry,
 			cert_issuer,
-			cert_subject
+			cert_subject,
+			satellite_id
 		FROM http_checks
 		WHERE
 			endpoint_id = $1
@@ -152,7 +156,7 @@ func (s *PostgresStorage) QueryHistory(ctx context.Context, endpointID string, f
 		var m storage.Metric
 		err := rows.Scan(
 			&m.Timestamp, &m.DurationNS, &m.StatusCode, &m.Success, &m.Error,
-			&m.CertExpiry, &m.CertIssuer, &m.CertSubject,
+			&m.CertExpiry, &m.CertIssuer, &m.CertSubject, &m.SatelliteID,
 		)
 		if err != nil {
 			return nil, err

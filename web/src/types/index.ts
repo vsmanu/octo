@@ -39,6 +39,7 @@ export interface Metric {
     cert_expiry?: string;
     cert_issuer?: string;
     cert_subject?: string;
+    satellite_id?: string;
 }
 
 export interface User {
