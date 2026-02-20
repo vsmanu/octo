@@ -23,6 +23,7 @@ Octo is a modern, high-performance monitoring solution designed for developers a
 *   **🛠️ Hot-Reload**: Update your monitoring targets on the fly via API or UI—no restarts required.
 *   **🐳 Container Native**: Deploy effortlessly with Docker or Podman.
 *   **🌍 Multi-Satellite Monitoring**: Run distributed checks from multiple geographic locations to verify global availability and latency.
+*   **🤖 AI-Ready (MCP)**: Native integration with the Model Context Protocol (MCP) to allow AI agents to manage and query Octo.
 
 ---
 
@@ -40,6 +41,26 @@ Easily assign endpoints to specific satellites via the configuration UI or YAML.
 ### Global Health View
 See the status of your endpoints from every active satellite directly on the dashboard.
 ![Dashboard Details](/home/manu/.gemini/antigravity/brain/349300b6-f128-449e-ac40-a91e3509fed3/dashboard_endpoint_details.png)
+
+---
+
+## 🤖 AI Integration via MCP
+
+Octo is designed to be fully **AI-Friendly**. The master node comes with an embedded **Model Context Protocol (MCP)** server, making it trivial to connect your monitoring data directly into AI assistants like Claude Desktop, Cursor, and custom agentic workflows.
+
+The MCP server runs on the same port as the Octo API via Server-Sent Events (SSE).
+
+**Connection Details:**
+*   **Endpoint:** `http://localhost:8080/api/v1/mcp/sse`
+*   **Protocol:** SSE transport mapping to JSON-RPC messages
+
+**Available AI Tools:**
+*   `get_config`: Retrieve the deep metrics threshold and alerting configuration.
+*   `list_endpoints`: Fetch real-time status and information on all monitored endpoints.
+*   `list_satellites`: Get uptime and lifecycle metadata for all connected satellites.
+
+**Why Use MCP?**
+Instead of manually diagnosing an outage, your AI agent can query Octo to say *"Which endpoints are currently offline?"* or *"Compare the latency of api.example.com across all satellites."*
 
 ---
 

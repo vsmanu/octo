@@ -9,8 +9,10 @@ import (
 	"time"
 
 	"github.com/manu/octo/pkg/config"
+	"github.com/manu/octo/pkg/mcp"
 	"github.com/manu/octo/pkg/satellite"
 	"github.com/manu/octo/pkg/storage"
+	mcpserver "github.com/mark3labs/mcp-go/server"
 )
 
 type Server struct {
@@ -53,6 +55,13 @@ func (s *Server) Handler() http.Handler {
 	protectedMux.HandleFunc("PUT /api/v1/config/endpoints/{id}", s.handleUpdateEndpoint)
 	protectedMux.HandleFunc("DELETE /api/v1/config/endpoints/{id}", s.handleDeleteEndpoint)
 	protectedMux.HandleFunc("GET /api/v1/endpoints/{id}/history", s.handleGetEndpointHistory)
+
+	// MCP Server (SSE) - Protected by same auth as API
+	mcpSrv := mcp.NewServer(s.configManager, s.satelliteManager)
+	sseServer := mcpserver.NewSSEServer(mcpSrv)
+	protectedMux.Handle("GET /api/v1/mcp/sse", sseServer.SSEHandler())
+	protectedMux.Handle("POST /api/v1/mcp/message", sseServer.MessageHandler())
+
 	mux.Handle("/api/v1/", s.AuthMiddleware(protectedMux))
 
 	// Frontend (SPA)
