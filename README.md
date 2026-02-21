@@ -145,16 +145,26 @@ This means you can edit `config/config.yml` on your host machine, and the change
 *   **Docker** or **Podman**
 *   **Go 1.22+** (only for manual builds)
 
-### ⚡ Quick Start (Podman)
-The fastest way to get up and running:
+### 🚀 Quick Start (Pre-built Docker Image)
+The absolute easiest way to get up and running is to use the official pre-built image from the GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/orchestrator-dev/octo-master:latest
+docker run -d -p 8080:8080 -v $(pwd)/config:/config ghcr.io/orchestrator-dev/octo-master:latest
+```
+Open **[http://localhost:8080](http://localhost:8080)** to start monitoring.
+
+---
+
+### ⚡ Develop Locally (Podman)
+A fast way to get up and running if you have Podman installed:
 
 ```bash
 ./scripts/run_podman.sh
 ```
-Open **[http://localhost:8080](http://localhost:8080)** to start monitoring.
 
-### 🐳 Quick Start (Docker Compose)
-Standard deployment for Docker users:
+### 🐳 Develop Locally (Docker Compose)
+Standard deployment for Docker users building from source:
 
 ```bash
 docker-compose up -d --build
