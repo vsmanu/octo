@@ -27,15 +27,16 @@ type GlobalConfig struct {
 }
 
 type AuthConfig struct {
-	Enabled  bool        `yaml:"enabled" json:"enabled"`
-	Provider string      `yaml:"provider" json:"provider"` // "basic"
-	Basic    BasicConfig `yaml:"basic" json:"basic"`
-	Secret   string      `yaml:"secret" json:"secret"` // For signing session tokens
+	Enabled  bool         `yaml:"enabled" json:"enabled"`
+	Provider string       `yaml:"provider" json:"provider"` // "local" or "basic"
+	Users    []UserConfig `yaml:"users" json:"users"`
+	Secret   string       `yaml:"secret" json:"secret"` // For signing session tokens
 }
 
-type BasicConfig struct {
-	Username string `yaml:"username" json:"username"`
-	Password string `yaml:"password" json:"password"`
+type UserConfig struct {
+	Username     string `yaml:"username" json:"username"`
+	PasswordHash string `yaml:"password_hash" json:"password_hash"`
+	Role         string `yaml:"role" json:"role"` // e.g., "admin" or "viewer"
 }
 
 type EndpointConfig struct {
@@ -144,6 +145,17 @@ func (m *Manager) Load() error {
 	}
 	if cfg.Global.RequestTimeout == 0 {
 		cfg.Global.RequestTimeout = 10 * time.Second
+	}
+
+	// Add a default admin user if auth is enabled but no users are defined
+	if cfg.Auth.Enabled && len(cfg.Auth.Users) == 0 {
+		cfg.Auth.Users = []UserConfig{
+			{
+				Username:     "admin",
+				PasswordHash: "$2a$10$wE3/oE/3iFqP2iYQxG6uWe/q.QY8rI.3s8.U//U.sW2m9F/z.n9R2", // hash for 'admin'
+				Role:         "admin",
+			},
+		}
 	}
 
 	m.mu.Lock()

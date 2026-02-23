@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, CheckCircle, Clock, Settings, Shield } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { Config, Endpoint, Metric } from "../types";
+import { useAuth } from "../context/AuthContext";
 
 export function EndpointDetails() {
     const { id } = useParams();
@@ -10,6 +11,9 @@ export function EndpointDetails() {
     const [endpoint, setEndpoint] = useState<Endpoint | null>(null);
     const [metrics, setMetrics] = useState<Metric[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const { user } = useAuth();
+    const isAdmin = user?.role === "admin";
 
     const [timeRange, setTimeRange] = useState("1h");
     const [customStart, setCustomStart] = useState("");
@@ -110,13 +114,15 @@ export function EndpointDetails() {
                     <div>
                         <div className="flex items-center gap-3">
                             <h1 className="text-2xl font-bold tracking-tight">{endpoint.name}</h1>
-                            <button
-                                onClick={() => navigate(`/endpoints/${id}/edit`)}
-                                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-muted h-8 w-8 text-muted-foreground"
-                                title="Edit Configuration"
-                            >
-                                <Settings className="h-4 w-4" />
-                            </button>
+                            {isAdmin && (
+                                <button
+                                    onClick={() => navigate(`/endpoints/${id}/edit`)}
+                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-muted h-8 w-8 text-muted-foreground"
+                                    title="Edit Configuration"
+                                >
+                                    <Settings className="h-4 w-4" />
+                                </button>
+                            )}
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
                             <a href={endpoint.url} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-primary">

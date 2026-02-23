@@ -17,6 +17,7 @@ type contextKey string
 
 const (
 	UserContextKey contextKey = "user"
+	RoleContextKey contextKey = "role"
 	CookieName     string     = "octo_session"
 )
 
@@ -46,10 +47,18 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Determine provider
-	// For MVP, we only support basic auth provider defined in config
+	// Support basic/local auth provider defined in config
 	var provider auth.Provider
-	if cfg.Auth.Provider == "basic" {
-		provider = basic.NewProvider(cfg.Auth.Basic.Username, cfg.Auth.Basic.Password)
+	if cfg.Auth.Provider == "local" || cfg.Auth.Provider == "basic" {
+		var users []basic.UserCredential
+		for _, u := range cfg.Auth.Users {
+			users = append(users, basic.UserCredential{
+				Username:     u.Username,
+				PasswordHash: u.PasswordHash,
+				Role:         u.Role,
+			})
+		}
+		provider = basic.NewProvider(users)
 	} else {
 		http.Error(w, "Unknown auth provider", http.StatusInternalServerError)
 		return
@@ -145,8 +154,11 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Add user to context
+		// Add user and role to context
 		ctx := context.WithValue(r.Context(), UserContextKey, claims["sub"])
+		if role, ok := claims["role"]; ok {
+			ctx = context.WithValue(ctx, RoleContextKey, role)
+		}
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -186,6 +198,7 @@ func (s *Server) generateToken(user *auth.User, secret string) (string, error) {
 // handleMe returns current user info
 func (s *Server) handleMe(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value(UserContextKey)
+	role := r.Context().Value(RoleContextKey)
 	if user == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -193,5 +206,32 @@ func (s *Server) handleMe(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"username": user,
+		"role":     role,
 	})
+}
+
+// RequireRole enforces role-based access control for handlers
+func (s *Server) RequireRole(requiredRole string, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		roleVal := r.Context().Value(RoleContextKey)
+		if roleVal == nil {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		role, ok := roleVal.(string)
+		if !ok {
+			http.Error(w, "Forbidden: invalid role", http.StatusForbidden)
+			return
+		}
+
+		// In a full RBAC system you would resolve hierarchy (admin beats editor).
+		// For MVP, we simply demand the exact role or 'admin'.
+		if role != requiredRole && role != "admin" {
+			http.Error(w, "Forbidden: insufficient permissions", http.StatusForbidden)
+			return
+		}
+
+		next(w, r)
+	}
 }

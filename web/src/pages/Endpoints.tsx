@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Settings } from "lucide-react";
 import type { Config } from "../types";
+import { useAuth } from "../context/AuthContext";
 
 export function Endpoints() {
     const [config, setConfig] = useState<Config | null>(null);
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const isAdmin = user?.role === "admin";
 
     useEffect(() => {
         fetch("/api/v1/config")
@@ -19,12 +22,14 @@ export function Endpoints() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight">Endpoints</h1>
-                <button
-                    onClick={() => navigate("/endpoints/new")}
-                    className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                    Add Endpoint
-                </button>
+                {isAdmin && (
+                    <button
+                        onClick={() => navigate("/endpoints/new")}
+                        className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                    >
+                        Add Endpoint
+                    </button>
+                )}
             </div>
 
             <div className="rounded-xl border bg-card text-card-foreground shadow">
@@ -54,16 +59,18 @@ export function Endpoints() {
                                         {ep.method}
                                     </td>
                                     <td className="p-4 align-middle text-right">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                navigate(`/endpoints/${ep.id}/edit`);
-                                            }}
-                                            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted h-9 w-9"
-                                            title="Edit Configuration"
-                                        >
-                                            <Settings className="h-4 w-4" />
-                                        </button>
+                                        {isAdmin && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/endpoints/${ep.id}/edit`);
+                                                }}
+                                                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted h-9 w-9"
+                                                title="Edit Configuration"
+                                            >
+                                                <Settings className="h-4 w-4" />
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

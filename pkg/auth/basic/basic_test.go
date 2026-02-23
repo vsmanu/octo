@@ -4,50 +4,48 @@ import (
 	"testing"
 
 	"github.com/manu/octo/pkg/auth"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func TestProvider_Authenticate(t *testing.T) {
-	provider := NewProvider("admin", "secret")
+func TestBasicProvider(t *testing.T) {
+	// Generate a bcrypt hash for "secret"
+	hash, err := bcrypt.GenerateFromPassword([]byte("secret"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatalf("failed to hash password: %v", err)
+	}
 
-	tests := []struct {
-		name          string
-		username      string
-		password      string
-		expectedError error
-	}{
+	users := []UserCredential{
 		{
-			name:          "Valid credentials",
-			username:      "admin",
-			password:      "secret",
-			expectedError: nil,
+			Username:     "admin",
+			PasswordHash: string(hash),
+			Role:         "admin",
 		},
 		{
-			name:          "Invalid username",
-			username:      "wrong",
-			password:      "secret",
-			expectedError: auth.ErrInvalidCredentials,
-		},
-		{
-			name:          "Invalid password",
-			username:      "admin",
-			password:      "wrong",
-			expectedError: auth.ErrInvalidCredentials,
+			Username:     "viewer",
+			PasswordHash: string(hash),
+			Role:         "viewer",
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			user, err := provider.Authenticate(tt.username, tt.password)
-			if err != tt.expectedError {
-				t.Errorf("expected error %v, got %v", tt.expectedError, err)
-			}
-			if err == nil {
-				if user.Username != tt.username {
-					t.Errorf("expected username %s, got %s", tt.username, user.Username)
-				}
-				if user.Role != "admin" {
-					t.Errorf("expected role admin, got %s", user.Role)
-				}
+	p := NewProvider(users)
+
+	tests := []struct {
+		name        string
+		user        string
+		pass        string
+		expectedErr error
+	}{
+		{"ValidAdmin", "admin", "secret", nil},
+		{"ValidViewer", "viewer", "secret", nil},
+		{"InvalidUser", "unknown", "secret", auth.ErrInvalidCredentials},
+		{"InvalidPass", "admin", "wrong", auth.ErrInvalidCredentials},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := p.Authenticate(tc.user, tc.pass)
+			if err != tc.expectedErr {
+				t.Fatalf("Expected err %v, got %v", tc.expectedErr, err)
 			}
 		})
 	}

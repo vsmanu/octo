@@ -50,10 +50,10 @@ func (s *Server) Handler() http.Handler {
 	protectedMux := http.NewServeMux()
 	protectedMux.HandleFunc("GET /api/v1/auth/me", s.handleMe)
 	protectedMux.HandleFunc("GET /api/v1/config", s.handleGetConfig)
-	protectedMux.HandleFunc("POST /api/v1/config", s.handleUpdateConfig)
-	protectedMux.HandleFunc("POST /api/v1/config/endpoints", s.handleCreateEndpoint)
-	protectedMux.HandleFunc("PUT /api/v1/config/endpoints/{id}", s.handleUpdateEndpoint)
-	protectedMux.HandleFunc("DELETE /api/v1/config/endpoints/{id}", s.handleDeleteEndpoint)
+	protectedMux.HandleFunc("POST /api/v1/config", s.RequireRole("admin", s.handleUpdateConfig))
+	protectedMux.HandleFunc("POST /api/v1/config/endpoints", s.RequireRole("admin", s.handleCreateEndpoint))
+	protectedMux.HandleFunc("PUT /api/v1/config/endpoints/{id}", s.RequireRole("admin", s.handleUpdateEndpoint))
+	protectedMux.HandleFunc("DELETE /api/v1/config/endpoints/{id}", s.RequireRole("admin", s.handleDeleteEndpoint))
 	protectedMux.HandleFunc("GET /api/v1/endpoints/{id}/history", s.handleGetEndpointHistory)
 
 	// MCP Server (SSE) - Protected by same auth as API

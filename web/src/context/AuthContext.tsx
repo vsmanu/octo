@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const res = await fetch("/api/v1/auth/me");
             if (res.ok) {
                 const data = await res.json();
-                setUser({ username: data.username, role: "admin" }); // Default role for now
+                setUser({ username: data.username, role: data.role || "viewer" });
             } else {
                 setUser(null);
             }

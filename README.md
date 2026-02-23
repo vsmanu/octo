@@ -24,6 +24,7 @@ Octo is a modern, high-performance monitoring solution designed for developers a
 *   **🐳 Container Native**: Deploy effortlessly with Docker or Podman.
 *   **🌍 Multi-Satellite Monitoring**: Run distributed checks from multiple geographic locations to verify global availability and latency.
 *   **🤖 AI-Ready (MCP)**: Native integration with the Model Context Protocol (MCP) to allow AI agents to manage and query Octo.
+*   **👥 Multi-User & RBAC**: Secure local authentication with `admin` and `viewer` roles to protect your configuration.
 
 ---
 
@@ -127,6 +128,45 @@ This means you can edit `config/config.yml` on your host machine, and the change
 
 **Note:** The `config.yml` file is NOT baked into the image. It is injected at runtime via the volume mount.
 
+---
+
+## 🔐 Authentication & Users
+
+Octo supports local authentication with Role-Based Access Control (RBAC). You can define multiple users with different roles (`admin` or `viewer`).
+
+### Generating Passwords
+Passwords are secured using `bcrypt`. To generate a hashed password for your `config.yml`, use the included `hashpass` utility.
+From the project root, run:
+```bash
+go run cmd/hashpass/main.go
+# Or if built:
+./bin/hashpass
+```
+
+### Example `config.yml` Auth Section
+```yaml
+auth:
+  enabled: true
+  provider: "local"
+  secret: "your-super-secret-jwt-key"
+  users:
+    - username: "admin"
+      password_hash: "$2a$10$..." # Output from hashpass
+      role: "admin"
+    - username: "viewer"
+      password_hash: "$2a$10$..."
+      role: "viewer"
+```
+*   **Admin**: Can view dashboards, metrics, and manage the configuration (add/edit/delete endpoints).
+*   **Viewer**: Can only view dashboards and metrics (read-only mode).
+
+> [!NOTE]
+> If `auth.enabled` is `true` but you omit the `users` list entirely, Octo will safely inject a default admin user with the credentials:
+> **username**: `admin`
+> **password**: `admin`
+
+---
+
 ## 🗺️ Project Roadmap
 
 | Version | Status | Features |
@@ -134,7 +174,7 @@ This means you can edit `config/config.yml` on your host machine, and the change
 | **v0.1.0** | ✅ **Released** | MVP Core Engine, InfluxDB Support, Basic API |
 | **v0.2.0** | ✅ **Released** | React Frontend, TimescaleDB Migration, Config UI, Historical Charts |
 | **v0.3.0** | ✅ **Released** | Alerting Engine, SSL Monitoring, Config Editor, Aggregation Metrics |
-| **v0.4.0** | 📅 **Planned** | User Authentication (OAuth2/OIDC), Multi-user Support |
+| **v0.4.0** | ✅ **Released** | User Authentication (Local/Basic), Multi-user Support, RBAC |
 | **v1.0.0** | 📅 **Future** | High Availability Clustering, Plugin System, Public Release |
 
 ---

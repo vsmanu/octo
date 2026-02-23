@@ -1,34 +1,43 @@
 package basic
 
 import (
-	"crypto/subtle"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/manu/octo/pkg/auth"
 )
 
-// Provider implements auth.Provider for basic auth
-type Provider struct {
-	username string
-	password string
+// UserCredential stores the username, bcrypt hash, and role
+type UserCredential struct {
+	Username     string
+	PasswordHash string
+	Role         string
 }
 
-// NewProvider creates a new basic auth provider
-func NewProvider(username, password string) *Provider {
+// Provider implements auth.Provider for basic local auth
+type Provider struct {
+	users []UserCredential
+}
+
+// NewProvider creates a new basic auth provider with a set of users
+func NewProvider(users []UserCredential) *Provider {
 	return &Provider{
-		username: username,
-		password: password,
+		users: users,
 	}
 }
 
-// Authenticate checks the username and password
+// Authenticate checks the username and password against bcrypt hashes
 func (p *Provider) Authenticate(username, password string) (*auth.User, error) {
-	// constant time comparison to prevent timing attacks
-	if subtle.ConstantTimeCompare([]byte(username), []byte(p.username)) == 1 &&
-		subtle.ConstantTimeCompare([]byte(password), []byte(p.password)) == 1 {
-		return &auth.User{
-			Username: username,
-			Role:     "admin", // Default to admin for basic auth
-		}, nil
+	for _, u := range p.users {
+		if u.Username == username {
+			err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
+			if err == nil {
+				return &auth.User{
+					Username: u.Username,
+					Role:     u.Role,
+				}, nil
+			}
+			return nil, auth.ErrInvalidCredentials
+		}
 	}
 	return nil, auth.ErrInvalidCredentials
 }
